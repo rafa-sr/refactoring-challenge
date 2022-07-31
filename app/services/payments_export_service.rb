@@ -1,42 +1,44 @@
 class PaymentsExportService
   require "csv"
+  require 'ruby-prof'
 
-  def initialize(agent, exported_at, risk_carrier, export_type)
+  attr_reader :risk_carrier, :export_type, :exported_at
+
+  def initialize(agent, risk_carrier, export_type)
     @agent = agent
     @payments = Payment.ready_for_export
-    @exported_at = exported_at
     @risk_carrier = risk_carrier
     @export_type = export_type
   end
 
   def call
+    @exported_at = Time.now
     ActiveRecord::Base.transaction do
-      update_data_for_payment
-      update_contract(@exported_at)
+      RubyProf.start
+      update_export_at
 
       create_csv_files
       save_export_log
+      result = RubyProf.stop
+      printer = RubyProf::GraphHtmlPrinter.new(result)
+      report_file = File.new( Rails.root.join("tmp","report_company_2_#{Time.now}_.html"), 'wb' )
+      puts "REPORT:   #{report_file.path}"
+      printer.print(report_file, min_percent: 1)
     end
     @files
   end
 
-  def update_data_for_payment
+  def update_export_at
     @payments.each do |p|
       p.update(exported_at: @exported_at)
-    end
-  end
-
-  def update_contract(last_export)
-    @payments.each do |p|
-      p.contract.update(last_export: last_export)
     end
   end
 
   def create_csv_files
     col_sep = @risk_carrier == "Company_1" ? ";" : "|"
 
-    @files = csv_data(col_sep).map.with_index(1).map do |csv, i|
-      File.open(save_path(i), "wb") { |f| f << csv }
+    @files = csv_data(col_sep).map.with_index(1).map do |csv, index|
+      File.open(save_path(index), "wb") { |f| f << csv }
     end
   end
 

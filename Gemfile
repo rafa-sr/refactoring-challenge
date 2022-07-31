@@ -25,4 +25,5 @@ group :development, :test do
   gem 'rubocop-rails'
   gem 'rubocop-gemfile'
   gem 'rubocop-rspec'
+  gem 'ruby-prof'
 end

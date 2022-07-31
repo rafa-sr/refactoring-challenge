@@ -211,6 +211,7 @@ GEM
       rubocop (>= 1.7.0, < 2.0)
     rubocop-rspec (2.12.1)
       rubocop (~> 1.31)
+    ruby-prof (1.4.3)
     ruby-progressbar (1.11.0)
     simplecov (0.21.2)
       docile (~> 1.1)
@@ -247,6 +248,7 @@ DEPENDENCIES
   rubocop-gemfile
   rubocop-rails
   rubocop-rspec
+  ruby-prof
   simplecov
   tzinfo-data
 
