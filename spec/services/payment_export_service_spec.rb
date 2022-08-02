@@ -7,7 +7,7 @@ RSpec.describe PaymentsExportService do
 
   describe '.call' do
     let(:payments_to_exp) do
-      FactoryBot.create_list(:payment, 2,
+      FactoryBot.create_list(:payment, 2, amount_cents: 1_000,
                           verified: true, cancelled: false)
     end
 
@@ -18,15 +18,28 @@ RSpec.describe PaymentsExportService do
 
         payment_exp_srv.call()
 
-        payment_ready_to_exp.each_with_index do |payment, index|
-          expect(payments[index].exported_at).not_to eql olds_exported_at[index]
+        payments_to_exp.each_with_index do |payment, index|
+          expect(payments[index].exported_at).to be > olds_exported_at[index]
         end
       end
     end
 
     describe '.create_csv_files' do
-      it '' do
+      it 'create a csv file with the payment data' do
+        buffer = StringIO.new()
+        file_path = payment_exp_srv.save_path(1)
+        file = double('file')
+        allow(File).to receive(:open).with(file_path, 'wb').and_yield(buffer)
+        file_header = 'amount;agent_id;created_at' + "\n"
+        file_body = ''
+          payment_exp_srv.payments.each do |payment|
+            file_body += "#{payment.amount_cents};#{payment.agent_id};#{payment.created_at}\n"
+          end
+        file_content = file_header + file_body
 
+        payment_exp_srv.call()
+
+        expect(buffer.string).to eq file_content
       end
     end
 
