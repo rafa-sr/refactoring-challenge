@@ -2,7 +2,7 @@ class PaymentsExportService
   require "csv"
   require 'ruby-prof'
 
-  attr_reader :risk_carrier, :export_type, :exported_at
+  attr_reader :risk_carrier, :export_type, :exported_at, :payments
 
   def initialize(agent, risk_carrier, export_type)
     @agent = agent
@@ -28,6 +28,8 @@ class PaymentsExportService
     @files
   end
 
+private
+
   def update_export_at
     @payments.each do |p|
       p.update(exported_at: @exported_at)
@@ -42,31 +44,31 @@ class PaymentsExportService
     end
   end
 
+  def generate_export_csv(col_sep)
+    @payments.each_slice(rows_limit).map do |slice|
+      CSV.generate(col_sep: col_sep) do |csv|
+        csv << ["amount", "agent_id", "created_at"]
+        slice.each do |payment|
+          csv << csv_data(payment) if !payment.processed?
+        end
+      end
+    end
+  end
+
+  def csv_data(payment)
+    [payment.amount_cents, payment.agent.id, payment.created_at]
+  end
+
+  def rows_limit
+    @risk_carrier == "Company_1" ? 250 : 2500
+  end
+
   def save_path(part)
     Rails.root.join("tmp", csv_file_name(part))
   end
 
   def csv_file_name(part)
     "#{@risk_carrier}_payment_#{@export_type}_#{@exported_at.to_i}_part#{part}.csv"
-  end
-
-  def csv_data(col_sep)
-    @payments.each_slice(rows_limit).map do |slice|
-      CSV.generate(col_sep: col_sep) do |csv|
-        csv << ["amount", "agent_id", "created_at"]
-        slice.each do |payment|
-          csv << generate_export_csv(payment) if !payment.processed?
-        end
-      end
-    end
-  end
-
-  def generate_export_csv(payment)
-    [payment.amount_cents, payment.agent.id, payment.created_at]
-  end
-
-  def rows_limit
-    @risk_carrier == "Company_1" ? 250 : 2500
   end
 
   def save_export_log
