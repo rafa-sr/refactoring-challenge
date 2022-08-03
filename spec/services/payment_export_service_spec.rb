@@ -13,13 +13,13 @@ RSpec.describe PaymentsExportService do
 
     describe '.update_export_at' do
       it 'update the exported_at field from payments attr' do
-        olds_exported_at = payments_to_exp.pluck(:exported_at)
-        payments = payment_exp_srv.payments
+        outdated_payments = payment_exp_srv.payments.pluck(:exported_at)
 
         payment_exp_srv.call()
+        updated_payments = payment_exp_srv.payments.pluck(:exported_at)
 
-        payments_to_exp.each_with_index do |payment, index|
-          expect(payments[index].exported_at).to be > olds_exported_at[index]
+        updated_payments.each_with_index do |payment, index|
+          expect(updated_payments[index]).to be > outdated_payments[index]
         end
       end
     end
@@ -91,7 +91,7 @@ RSpec.describe PaymentsExportService do
     it 'include exported_at on the path' do
       result = payment_exp_srv.csv_file_name(1)
 
-      expect(result).to include payment_exp_srv.exported_at.to_s
+      expect(result).to include "#{payment_exp_srv.exported_at.to_i}"
     end
   end
 
