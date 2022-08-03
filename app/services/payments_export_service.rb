@@ -10,6 +10,7 @@ class PaymentsExportService
     @risk_carrier = risk_carrier
     @export_type = export_type
     @exported_at = Time.now
+    @export_format = ExportFormat.new(risk_carrier)
   end
 
   def call
@@ -45,7 +46,7 @@ private
   end
 
   def create_csv_files
-    col_sep = @risk_carrier == "Company_1" ? ";" : "|"
+    col_sep = @export_format.col_separator
 
     @files = generate_export_csv(col_sep).map.with_index(1).map do |csv, index|
       File.open(save_path(index), "wb") { |f| f << csv }
@@ -68,7 +69,7 @@ private
   end
 
   def rows_limit
-    @risk_carrier == "Company_1" ? 250 : 2500
+    @export_format.rows_limit
   end
 
   def save_export_log
