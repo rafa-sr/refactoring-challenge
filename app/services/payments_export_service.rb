@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 class PaymentsExportService
-  require "csv"
+  require 'csv'
   require 'ruby-prof'
 
   attr_reader :risk_carrier, :export_type, :exported_at, :payments,
-              :export_format, :agent
+              :export_format
 
   def initialize(agent, risk_carrier, export_type)
     @agent = agent
@@ -16,29 +18,22 @@ class PaymentsExportService
 
   def call
     ActiveRecord::Base.transaction do
-   #   RubyProf.start
       update_export_at
-
       create_csv_files
       save_export_log
-    #  result = RubyProf.stop
-     # printer = RubyProf::GraphHtmlPrinter.new(result)
-      #report_file = File.new( Rails.root.join("tmp","report_company_2_#{Time.now}_.html"), 'wb' )
-      #puts "REPORT:   #{report_file.path}"
-     # printer.print(report_file, min_percent: 1)
     end
     @files
   end
 
   def csv_file_name(part)
-     "#{@risk_carrier}_payment_#{@export_type}_#{@exported_at.to_i}_part#{part}.csv"
+    "#{@risk_carrier}_payment_#{@export_type}_#{@exported_at.to_i}_part#{part}.csv"
   end
 
   def save_path(part)
-    Rails.root.join("tmp", csv_file_name(part))
+    Rails.root.join('tmp', csv_file_name(part))
   end
 
-private
+  private
 
   def update_export_at
     @payments.each do |p|
@@ -50,16 +45,16 @@ private
     col_sep = @export_format.col_separator
 
     @files = generate_export_csv(col_sep).map.with_index(1).map do |csv, index|
-      File.open(save_path(index), "wb") { |f| f << csv }
+      File.open(save_path(index), 'wb') { |f| f << csv }
     end
   end
 
   def generate_export_csv(col_sep)
     @payments.each_slice(rows_limit).map do |slice|
       CSV.generate(col_sep: col_sep) do |csv|
-        csv << ["amount", "agent_id", "created_at"]
+        csv << %w[amount agent_id created_at]
         slice.each do |payment|
-          csv << csv_data(payment) if !payment.processed?
+          csv << csv_data(payment) unless payment.processed?
         end
       end
     end
@@ -83,4 +78,3 @@ private
     end
   end
 end
-
