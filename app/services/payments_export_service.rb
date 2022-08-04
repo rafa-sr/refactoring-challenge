@@ -2,7 +2,8 @@ class PaymentsExportService
   require "csv"
   require 'ruby-prof'
 
-  attr_reader :risk_carrier, :export_type, :exported_at, :payments
+  attr_reader :risk_carrier, :export_type, :exported_at, :payments,
+              :export_format, :agent
 
   def initialize(agent, risk_carrier, export_type)
     @agent = agent

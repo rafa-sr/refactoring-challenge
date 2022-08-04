@@ -34,7 +34,7 @@ RSpec.describe PaymentsExportService do
           file_path = payment_exp_srv.save_path(1)
           allow(File).to receive(:open).with(file_path, 'wb').and_yield(buffer)
         end
-        it 'write header and payment using ; as colum seprator' do
+        it 'write file using ; as colum seprator' do
           file_header = "amount;agent_id;created_at\n"
           file_body = ''
           payment_exp_srv.payments.each do |payment|
@@ -54,7 +54,7 @@ RSpec.describe PaymentsExportService do
           allow(File).to receive(:open).with(file_path, 'wb').and_yield(buffer)
         end
 
-        it 'write header and payment using | as colum seprator' do
+        it 'write file  using | as colum seprator' do
           file_header = "amount|agent_id|created_at\n"
           file_body = ''
           payment_export.payments.each do |pay|
@@ -85,7 +85,13 @@ RSpec.describe PaymentsExportService do
   end
 
   describe '.save_path' do
-    it ''
+    it 'return tmp directory' do
+      save_path = payment_exp_srv.save_path(1)
+
+      dir = save_path.dirname.to_s.split('/').last
+
+      expect(dir).to eql 'tmp'
+    end
   end
 
   describe '.csv_file_name' do
@@ -120,19 +126,39 @@ RSpec.describe PaymentsExportService do
     end
   end
 
-  describe 'csv_data' do
-    it ''
-  end
+  describe '.save_export_log' do
+    it 'create payment_export_log in groups of row_limit value' do
+      rows_limit = payment_exp_srv.export_format.rows_limit
+      groups = payment_exp_srv.payments.each_slice(rows_limit).count
 
-  describe 'generate_export_csv' do
-    it ''
-  end
+      payment_exp_srv.call
 
-  describe 'rows_limie' do
-    it ''
-  end
+      expect(PaymentExportLog.count).to be groups
+    end
 
-  describe 'save_export_log' do
-    it ''
+    it 'create payment_export_log with given agent' do
+      given_agent = Agent.last
+
+      described_class.new(given_agent, 'Company_1', 'my_export_type').call
+
+      expect(PaymentExportLog.last.agent_id).to be given_agent.id
+    end
+
+    it 'create payment_export_log with file_name using csv_file_name' do
+      payment_exp_srv.call
+
+      file_name = PaymentExportLog.first.file_name
+      expect(file_name).to eql payment_exp_srv.csv_file_name(1)
+    end
+
+    it 'create payment_export_log with created_at using Time.now' do
+      time_now = Time.now
+      allow(Time).to receive(:now).with(no_args).and_return(time_now)
+
+      payment_exp_srv.call
+
+      expect(PaymentExportLog.first.exported_at).to eql time_now
+    end
   end
 end
+
