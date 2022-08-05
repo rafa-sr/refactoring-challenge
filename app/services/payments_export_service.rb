@@ -2,7 +2,6 @@
 
 class PaymentsExportService
   require 'csv'
-  require 'ruby-prof'
 
   attr_reader :risk_carrier, :export_type, :exported_at, :payments,
               :export_format
@@ -36,9 +35,7 @@ class PaymentsExportService
   private
 
   def update_export_at
-    @payments.each do |p|
-      p.update(exported_at: @exported_at)
-    end
+    @payments.in_batches.update_all(exported_at: @exported_at)
   end
 
   def create_csv_files
@@ -54,7 +51,7 @@ class PaymentsExportService
       CSV.generate(col_sep: col_sep) do |csv|
         csv << %w[amount agent_id created_at]
         slice.each do |payment|
-          csv << csv_data(payment) unless payment.processed?
+          csv << csv_data(payment)
         end
       end
     end
