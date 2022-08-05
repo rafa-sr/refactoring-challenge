@@ -2,7 +2,6 @@
 
 class PaymentsExportService
   require 'csv'
-  require 'ruby-prof'
 
   attr_reader :risk_carrier, :export_type, :exported_at, :payments,
               :export_format
@@ -10,6 +9,8 @@ class PaymentsExportService
   def initialize(agent, risk_carrier, export_type)
     @agent = agent
     @payments = Payment.ready_for_export
+    @payments_imp = Payment
+             .where(verified: true, cancelled: false, processed: false)
     @risk_carrier = risk_carrier
     @export_type = export_type
     @exported_at = Time.now
@@ -25,6 +26,24 @@ class PaymentsExportService
     @files
   end
 
+  def improve
+    ActiveRecord::Base.transaction do
+    @payments_imp.in_batches.update_all(exported_at: @exported_at)
+
+    col_sep = @export_format.col_separator
+    @payments_imp.each_slice(rows_limit).map do |slice|
+        CSV.generate(col_sep: col_sep) do |csv|
+          csv << %w[amount agent_id created_at]
+          slice.each do |payment|
+            csv << csv_data(payment)
+          end
+        end
+      end
+      save_export_log
+    end
+    @files
+  end
+
   def csv_file_name(part)
     "#{@risk_carrier}_payment_#{@export_type}_#{@exported_at.to_i}_part#{part}.csv"
   end
@@ -33,7 +52,7 @@ class PaymentsExportService
     Rails.root.join('tmp', csv_file_name(part))
   end
 
-  private
+#  private
 
   def update_export_at
     @payments.each do |p|

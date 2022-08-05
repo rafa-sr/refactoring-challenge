@@ -26,4 +26,5 @@ group :development, :test do
   gem 'rubocop-gemfile'
   gem 'rubocop-rspec'
   gem 'ruby-prof'
+  gem 'benchmark-ips'
 end
