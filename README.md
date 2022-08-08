@@ -56,7 +56,7 @@ Please install Redis and start it!!
 
 https://redis.io/docs/getting-started/installation/
 
-exmaple for Mac:
+example for Mac:
 Install
 ```
 brew install redis
@@ -69,8 +69,7 @@ brew services start redis
 
 To Enqueue a PaymentExportJob
 ```
-Resque.enqueue(PaymentExportJob, Agent.fir
-st.id, 'Company_4', 'my_export_type')
+Resque.enqueue(PaymentExportJob, Agent.first.id, 'Company_4', 'my_export_type')
 ```
 
 Start a Worker
@@ -78,10 +77,10 @@ Start a Worker
 QUEUE=payments_export rake resque:work
 ```
 
-To check what Workers and Queue are doing, from the root folder start ``` resque-web```
+Resque comes with a Sinatra-based front end for seeing what's up with your queue.
+from the root folder of the repository start the ``` resque-web```
 
 ```
 resque-web -p 8282 config/initializers/resque.rb
 ```
-
 
