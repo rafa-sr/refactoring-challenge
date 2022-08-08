@@ -34,7 +34,10 @@ in order to avoid all the callbacks and make it faster again the test give me co
 I decide to edit the query for ready_to_export payments to include unproccesed payemnts because
 and remove if clausule in the generate_export_csv, after that all the ralted process with @payments get faster
 
-Benchmarking: after some testing, I realiza that was posssible to make the code x7 faster.
+Benchmarking:
+
+after some testing, I realiza that was posssible to make the code x7 faster.
+
 
 Last Step:
 
@@ -48,7 +51,7 @@ bin/rails db:drop db:create db:migrate
 bin/rails db < refactoring_development.sql
 ```
 
-## Run PaymentsExportService as a JOB
+## Run Job PaymentsExportService
 Please install Redis and start it!!
 
 https://redis.io/docs/getting-started/installation/
