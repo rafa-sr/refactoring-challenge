@@ -9,7 +9,7 @@ Another problem - when there are many payments to export, the service runs for 2
 ## The challenge
 You need to write tests and then refactor the service to make it process more data. Also, feel free to fix everything you find wrong!
 
-##TEST
+## TEST
 The test are very important part of the project, after write the test it give me confidence to start the refactoring process
 To run the unit test:
 
@@ -17,7 +17,7 @@ To run the unit test:
 rspec
 ```
 
-##Refactor
+## Refactor
 First Step:
 read the code to understand what is doing and see if the name of the methos and variables, have sence
  -I change the name of some methods and also delete one method that does not have sense like update_contract,
@@ -46,7 +46,7 @@ To run the export, you do
 ```
 PaymentsExportService.new(Agent.first, Time.now, 'Company_1', "my_export_type").call
 ```
-##Run PaymentsExportService as a JOB
+## Run PaymentsExportService as a JOB
 Please install Redis and start it!!
 
 https://redis.io/docs/getting-started/installation/
