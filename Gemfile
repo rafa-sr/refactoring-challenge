@@ -8,6 +8,7 @@ gem 'pg', '~> 1.1'
 gem 'puma', '~> 5.0'
 gem 'rails', '~> 7.0.2', '>= 7.0.2.3'
 gem 'resque'
+gem 'resque-web'
 gem 'redis'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
