@@ -1,4 +1,4 @@
-rails_root = ENV['RAILS_ENV'] || Dir.pwd
+rails_root = ENV['RAILS_ROOT'] || Dir.pwd
 rails_env = ENV['RAILS_ENV'] || 'development'
 config_file = rails_root + '/config/resque.yml'
 

@@ -1,4 +1,4 @@
-class PaymentExportJob
+class PaymentsExportJob
   @queue = :payments_export
 
   def self.perform(agent_id, risk_carrier, export_type)
