@@ -68,7 +68,7 @@ Start redis
 brew services start redis
 ```
 
-To process the PaymentExportServices as job ( PaymentExportJob)
+To process the PaymentsExportServices as job ( PaymentsExportJob)
 
 first start the rails console
 
