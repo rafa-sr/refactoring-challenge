@@ -70,7 +70,7 @@ brew services start redis
 
 To process the PaymentsExportServices as job ( PaymentsExportJob)
 
-first start the rails console
+first start the rails console, from the root folder
 
 ```
 $ bin/rails console
@@ -81,14 +81,15 @@ inside the console enqueue the job
 Resque.enqueue(PaymentsExportJob, Agent.first.id, 'Company_4', 'my_export_type')
 ```
 
-Start a Worker that will run the jobs
-```
-QUEUE=payments_export rake resque:work
-```
-
 Resque comes with a Sinatra-based front end for seeing what's up with your queue.
 from the root folder of the repository start the ``` resque-web```
 
 ```
 resque-web -p 8282 config/initializers/resque.rb
 ```
+
+Start a Worker that will run the jobs
+```
+QUEUE=payments_export rake resque:work
+```
+
