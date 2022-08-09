@@ -1,8 +1,7 @@
 # frozen_string_literal: true
+require 'csv'
 
 class PaymentsExportService
-  require 'csv'
-
   attr_reader :risk_carrier, :export_type, :exported_at, :payments,
               :export_format
 
