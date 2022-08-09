@@ -68,12 +68,20 @@ Start redis
 brew services start redis
 ```
 
-To Enqueue a PaymentExportJob
+To process the PaymentExportServices as job ( PaymentExportJob)
+
+first start the rails console
+
 ```
-Resque.enqueue(PaymentExportJob, Agent.first.id, 'Company_4', 'my_export_type')
+$ bin/rails console
 ```
 
-Start a Worker
+inside the console enqueue the job
+```
+Resque.enqueue(PaymentsExportJob, Agent.first.id, 'Company_4', 'my_export_type')
+```
+
+Start a Worker that will run the jobs
 ```
 QUEUE=payments_export rake resque:work
 ```
